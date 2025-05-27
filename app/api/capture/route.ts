@@ -93,11 +93,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error capturing screenshot:', error);
     // Send a more detailed error message if possible
-    const errorMessage = error.message || 'Failed to capture screenshot';
-    const errorStack = process.env.NODE_ENV === 'development' ? error.stack : undefined;
+    const errorMessage = error instanceof Error ? error.message : 'Failed to capture screenshot';
+    const errorStack = process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined;
     return NextResponse.json({ error: 'Failed to capture screenshot', details: errorMessage, stack: errorStack }, { status: 500 });
   } finally {
     if (browser !== null) {
