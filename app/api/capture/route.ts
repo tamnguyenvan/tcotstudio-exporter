@@ -2,24 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 
-const ALLOWED_ORIGIN =
-  process.env.NODE_ENV === 'production'
-    ? 'https://studio.tcot.vn'
-    : '*';
-
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Credentials': 'true',
-    },
-  });
-}
-
-
 // Helper function to get executable path
 const getExecutablePath = async () => {
   if (process.env.NODE_ENV === 'production') {
@@ -37,6 +19,23 @@ const getExecutablePath = async () => {
   return '/usr/bin/google-chrome'
 };
 
+export async function GET(req: NextRequest) {
+  if (req.method !== 'GET') {
+    return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const url = searchParams.get('url') ? decodeURIComponent(searchParams.get('url')!) : '';
+  const fullPage = searchParams.get('fullPage') !== 'false'; // Default true
+  const quality = parseInt(searchParams.get('quality') || '80', 10);
+  const type = searchParams.get('type') || 'png';
+  const viewportWidth = Number(searchParams.get('viewportWidth')) || 2000;
+  const viewportHeight = Number(searchParams.get('viewportHeight')) || 2000;
+  const deviceScaleFactor = parseFloat(searchParams.get('deviceScaleFactor') || '3');
+
+  return capturePage(url, fullPage, quality, type, { width: Number(viewportWidth), height: Number(viewportHeight), deviceScaleFactor });
+}
+
 
 export async function POST(req: NextRequest) {
   if (req.method !== 'POST') {
@@ -46,14 +45,22 @@ export async function POST(req: NextRequest) {
   const { url, fullPage = true, quality = 80, type = 'png', viewport } = await req.json();
   console.log('url', url)
 
+  return capturePage(url, fullPage, quality, type, viewport)
+}
+
+
+const capturePage = async (url: string, fullPage: boolean, quality: number, type: string, viewport: { width: number; height: number; deviceScaleFactor: number } | null) => {
+
   if (!url) {
     return NextResponse.json({ error: 'URL is required' }, { status: 400 });
   }
+  console.log('url', url)
 
   let browser = null;
 
   try {
     const executablePath = await getExecutablePath();
+    console.log(executablePath)
 
     browser = await puppeteer.launch({
       args: chromium.args,
@@ -65,7 +72,7 @@ export async function POST(req: NextRequest) {
     const page = await browser.newPage();
 
     if (viewport) {
-      await page.setViewport({ width: viewport.width, height: viewport.height, deviceScaleFactor: viewport.deviceScaleFactor || 1 });
+      await page.setViewport({ width: viewport.width, height: viewport.height, deviceScaleFactor: viewport.deviceScaleFactor || 3 });
     } else {
       // Set a default large viewport to help with full page capture,
       // though fullPage: true should handle scrolling.
@@ -108,7 +115,6 @@ export async function POST(req: NextRequest) {
       headers: {
         'Content-Type': `image/${type}`,
         'Content-Disposition': `attachment; filename="screenshot.${type}"`,
-        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
       },
     });
 
