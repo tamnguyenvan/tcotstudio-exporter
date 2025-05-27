@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium-min';
+import chromium from '@sparticuz/chromium';
 
 // Helper function to get executable path
 const getExecutablePath = async () => {
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       args: chromium.args,
       defaultViewport: viewport || chromium.defaultViewport, // Use provided viewport or default
       executablePath: executablePath,
-      headless: chromium.headless === 'chrome-headless-shell' ? 'shell' : chromium.headless, // 'new' is recommended for newer puppeteer versions
+      headless: chromium.headless, // 'new' is recommended for newer puppeteer versions
     });
 
     const page = await browser.newPage();
