@@ -1,0 +1,107 @@
+import { NextRequest, NextResponse } from 'next/server';
+import puppeteer from 'puppeteer-core';
+import chromium from 'chrome-aws-lambda';
+
+// Helper function to get executable path
+const getExecutablePath = async () => {
+  if (process.env.NODE_ENV === 'production') {
+    return await chromium.executablePath;
+  }
+  // For local development, you'll need to have Chrome installed.
+  // You can also specify a path to a Chrome/Chromium executable.
+  // On MacOS: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  // On Linux: /usr/bin/google-chrome or similar
+  // On Windows: C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+  // Or, install puppeteer full package locally: `npm i puppeteer` and use its bundled chromium
+  // For simplicity, this example expects Chrome to be in a common location or `puppeteer` full to be installed.
+  // const puppeteerFull = require('puppeteer');
+  // return puppeteerFull.executablePath();
+  return '/usr/bin/google-chrome'
+};
+
+
+export async function POST(req: NextRequest) {
+  if (req.method !== 'POST') {
+    return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 });
+  }
+
+  const { url, fullPage = true, quality = 80, type = 'png', viewport } = await req.json();
+  console.log('url', url)
+
+  if (!url) {
+    return NextResponse.json({ error: 'URL is required' }, { status: 400 });
+  }
+
+  let browser = null;
+
+  try {
+    const executablePath = await getExecutablePath();
+
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: viewport || chromium.defaultViewport, // Use provided viewport or default
+      executablePath: executablePath,
+      headless: chromium.headless, // 'new' is recommended for newer puppeteer versions
+    });
+
+    const page = await browser.newPage();
+
+    if (viewport) {
+      await page.setViewport({ width: viewport.width, height: viewport.height, deviceScaleFactor: viewport.deviceScaleFactor || 1 });
+    } else {
+      // Set a default large viewport to help with full page capture,
+      // though fullPage: true should handle scrolling.
+      await page.setViewport({ width: 2000, height: 2000, deviceScaleFactor: 3 });
+    }
+
+
+    // await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 }); // Wait until network is idle, timeout after 60s
+    await page.goto(url)
+
+    // Optional: Wait for a specific selector if needed
+    console.log('Waiting for selector...');
+    try {
+      await page.waitForSelector('#my-specific-content', { timeout: 10000 });
+      console.log('Selector found!');
+    } catch (error) {
+      console.error('Selector not found:', error);
+    }
+
+    // Optional: Inject styles to hide elements like cookie banners
+    // await page.addStyleTag({ content: '.cookie-banner { display: none !important; }' });
+
+    const screenshotBuffer = await page.screenshot({
+      type: type as 'png' | 'jpeg' | undefined, // Cast for type safety
+      quality: type === 'jpeg' || type === 'webp' ? Number(quality) : undefined, // Quality only for jpeg/webp
+      fullPage: Boolean(fullPage),
+      // omitBackground: true, // If you want transparent background for PNG
+    });
+
+    // return new NextResponse(screenshotBuffer, {
+    //   headers: {
+    //     'Content-Type': `image/${type}`,
+    //     'Content-Disposition': `attachment; filename="screenshot.${type}"`,
+    //   },
+    // });
+    if (!screenshotBuffer) {
+      return NextResponse.json({ error: 'Failed to capture screenshot' }, { status: 500 });
+    }
+    return new NextResponse(screenshotBuffer, {
+      headers: {
+        'Content-Type': `image/${type}`,
+        'Content-Disposition': `attachment; filename="screenshot.${type}"`,
+      },
+    });
+
+  } catch (error: any) {
+    console.error('Error capturing screenshot:', error);
+    // Send a more detailed error message if possible
+    const errorMessage = error.message || 'Failed to capture screenshot';
+    const errorStack = process.env.NODE_ENV === 'development' ? error.stack : undefined;
+    return NextResponse.json({ error: 'Failed to capture screenshot', details: errorMessage, stack: errorStack }, { status: 500 });
+  } finally {
+    if (browser !== null) {
+      await browser.close();
+    }
+  }
+}
