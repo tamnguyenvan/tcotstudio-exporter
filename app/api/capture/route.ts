@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
-import chromium from 'chrome-aws-lambda';
+import chromium from '@sparticuz/chromium';
 
 // Helper function to get executable path
 const getExecutablePath = async () => {
   if (process.env.NODE_ENV === 'production') {
-    return await chromium.executablePath;
+    return await chromium.executablePath();
   }
   // For local development, you'll need to have Chrome installed.
   // You can also specify a path to a Chrome/Chromium executable.
@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
     //     'Content-Disposition': `attachment; filename="screenshot.${type}"`,
     //   },
     // });
+    console.log('screenshotBuffer', screenshotBuffer)
     if (!screenshotBuffer) {
       return NextResponse.json({ error: 'Failed to capture screenshot' }, { status: 500 });
     }
