@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       args: chromium.args,
       defaultViewport: viewport || chromium.defaultViewport, // Use provided viewport or default
       executablePath: executablePath,
-      headless: chromium.headless, // 'new' is recommended for newer puppeteer versions
+      headless: chromium.headless === 'chrome-headless-shell' ? 'shell' : chromium.headless, // 'new' is recommended for newer puppeteer versions
     });
 
     const page = await browser.newPage();
