@@ -2,6 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 
+const ALLOWED_ORIGIN =
+  process.env.NODE_ENV === 'production'
+    ? 'https://studio.tcot.vn'
+    : '*';
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Credentials': 'true',
+    },
+  });
+}
+
+
 // Helper function to get executable path
 const getExecutablePath = async () => {
   if (process.env.NODE_ENV === 'production') {
@@ -83,7 +101,6 @@ export async function POST(req: NextRequest) {
     //     'Content-Disposition': `attachment; filename="screenshot.${type}"`,
     //   },
     // });
-    console.log('screenshotBuffer', screenshotBuffer)
     if (!screenshotBuffer) {
       return NextResponse.json({ error: 'Failed to capture screenshot' }, { status: 500 });
     }
@@ -91,6 +108,7 @@ export async function POST(req: NextRequest) {
       headers: {
         'Content-Type': `image/${type}`,
         'Content-Disposition': `attachment; filename="screenshot.${type}"`,
+        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
       },
     });
 
