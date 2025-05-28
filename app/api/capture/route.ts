@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
   const type = searchParams.get('type') || 'png';
   const viewportWidth = Number(searchParams.get('viewportWidth')) || 2000;
   const viewportHeight = Number(searchParams.get('viewportHeight')) || 2000;
-  const deviceScaleFactor = parseFloat(searchParams.get('deviceScaleFactor') || '3');
+  const deviceScaleFactor = parseFloat(searchParams.get('deviceScaleFactor') || '6');
 
   return capturePage(url, fullPage, quality, type, { width: Number(viewportWidth), height: Number(viewportHeight), deviceScaleFactor });
 }
@@ -76,7 +76,7 @@ const capturePage = async (url: string, fullPage: boolean, quality: number, type
     } else {
       // Set a default large viewport to help with full page capture,
       // though fullPage: true should handle scrolling.
-      await page.setViewport({ width: 2000, height: 2000, deviceScaleFactor: 3 });
+      await page.setViewport({ width: 2000, height: 2000, deviceScaleFactor: 6 });
     }
 
 
@@ -96,10 +96,10 @@ const capturePage = async (url: string, fullPage: boolean, quality: number, type
       type: type as 'png' | 'jpeg' | undefined, // Cast for type safety
       quality: type === 'jpeg' || type === 'webp' ? Number(quality) : undefined, // Quality only for jpeg/webp
       clip: {
-        x: 465,
+        x: 418,
         y: 500,
-        width: 890,
-        height: 425,
+        width: 984,
+        height: 600,
       },
       omitBackground: true, // If you want transparent background for PNG
     });
