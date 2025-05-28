@@ -80,7 +80,6 @@ const capturePage = async (url: string, fullPage: boolean, quality: number, type
     }
 
 
-    // await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 }); // Wait until network is idle, timeout after 60s
     await page.goto(url)
 
     // Optional: Wait for a specific selector if needed
@@ -92,14 +91,10 @@ const capturePage = async (url: string, fullPage: boolean, quality: number, type
       console.error('Selector not found:', error);
     }
 
-    // Optional: Inject styles to hide elements like cookie banners
-    // await page.addStyleTag({ content: '.cookie-banner { display: none !important; }' });
-
     await page.evaluate(() => document.body.style.background = 'transparent');
     const screenshotBuffer = await page.screenshot({
       type: type as 'png' | 'jpeg' | undefined, // Cast for type safety
       quality: type === 'jpeg' || type === 'webp' ? Number(quality) : undefined, // Quality only for jpeg/webp
-      // fullPage: Boolean(fullPage),
       clip: {
         x: 465,
         y: 500,
@@ -109,12 +104,6 @@ const capturePage = async (url: string, fullPage: boolean, quality: number, type
       omitBackground: true, // If you want transparent background for PNG
     });
 
-    // return new NextResponse(screenshotBuffer, {
-    //   headers: {
-    //     'Content-Type': `image/${type}`,
-    //     'Content-Disposition': `attachment; filename="screenshot.${type}"`,
-    //   },
-    // });
     if (!screenshotBuffer) {
       return NextResponse.json({ error: 'Failed to capture screenshot' }, { status: 500 });
     }
