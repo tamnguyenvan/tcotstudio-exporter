@@ -99,7 +99,7 @@ const capturePage = async (url: string, fullPage: boolean, quality: number, type
       type: type as 'png' | 'jpeg' | undefined, // Cast for type safety
       quality: type === 'jpeg' || type === 'webp' ? Number(quality) : undefined, // Quality only for jpeg/webp
       fullPage: Boolean(fullPage),
-      // omitBackground: true, // If you want transparent background for PNG
+      omitBackground: true, // If you want transparent background for PNG
     });
 
     // return new NextResponse(screenshotBuffer, {
