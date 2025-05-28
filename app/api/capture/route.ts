@@ -95,10 +95,17 @@ const capturePage = async (url: string, fullPage: boolean, quality: number, type
     // Optional: Inject styles to hide elements like cookie banners
     // await page.addStyleTag({ content: '.cookie-banner { display: none !important; }' });
 
+    await page.evaluate(() => document.body.style.background = 'transparent');
     const screenshotBuffer = await page.screenshot({
       type: type as 'png' | 'jpeg' | undefined, // Cast for type safety
       quality: type === 'jpeg' || type === 'webp' ? Number(quality) : undefined, // Quality only for jpeg/webp
-      fullPage: Boolean(fullPage),
+      // fullPage: Boolean(fullPage),
+      clip: {
+        x: 465,
+        y: 500,
+        width: 890,
+        height: 425,
+      },
       omitBackground: true, // If you want transparent background for PNG
     });
 
