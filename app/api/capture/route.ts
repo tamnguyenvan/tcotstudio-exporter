@@ -99,7 +99,7 @@ const capturePage = async (url: string, fullPage: boolean, quality: number, type
         x: 418,
         y: 500,
         width: 984,
-        height: 600,
+        height: 1000,
       },
       omitBackground: true, // If you want transparent background for PNG
     });
