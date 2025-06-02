@@ -61,35 +61,14 @@ const capturePage = async (url: string, fullPage: boolean, quality: number, type
       // Inject emoji fonts CSS ngay khi page load
       const style = document.createElement('style');
       style.textContent = `
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
-        
         @font-face {
-          font-family: 'Twemoji';
-          src: url('https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f600.png');
+          font-family: 'NotoColorEmoji';
+          src: url('/fonts/NotoColorEmoji-Regular.ttf') format('truetype');
           font-display: swap;
         }
         
-        /* Fallback cho các emoji fonts phổ biến */
         * {
-          font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Twitter Color Emoji", "Android Emoji", "EmojiSymbols", system-ui, -apple-system, sans-serif !important;
-        }
-        
-        /* Specific emoji styling */
-        .emoji, 
-        [data-emoji], 
-        img[alt*="emoji"],
-        span[role="img"] {
-          font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji" !important;
-          font-variant-emoji: emoji !important;
-          font-style: normal !important;
-          font-weight: normal !important;
-          text-rendering: optimizeLegibility !important;
-        }
-        
-        /* Force emoji rendering */
-        body {
-          -webkit-font-feature-settings: "liga" on, "calt" on;
-          font-feature-settings: "liga" on, "calt" on;
+          font-family: "NotoColorEmoji", "Apple Color Emoji", system-ui, sans-serif !important;
         }
       `;
       document.head.appendChild(style);
