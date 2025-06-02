@@ -28,11 +28,12 @@ const getFontDataUrl = async () => {
   try {
     // Font phải nằm trong thư mục public/fonts của project Next.js của bạn
     // process.cwd() sẽ trỏ đến thư mục gốc của project khi chạy trên Vercel
-    const fontPath = path.join(process.cwd(), 'public', 'fonts', 'NotoColorEmoji-Regular.ttf');
-    const fontBuffer = await fs.readFile(fontPath);
-    const fontBase64 = fontBuffer.toString('base64');
-    fontDataUrl = `data:font/ttf;base64,${fontBase64}`;
-    return fontDataUrl;
+    const fontPath = path.join(process.cwd(), 'fonts', 'NotoColorEmoji-Regular.ttf');
+    // const fontBuffer = await fs.readFile(fontPath);
+    // const fontBase64 = fontBuffer.toString('base64');
+    // fontDataUrl = `data:font/ttf;base64,${fontBase64}`;
+    // return fontDataUrl;
+    return fontPath;
   } catch (error) {
     console.error('Error loading font for Data URI:', error);
     // Fallback hoặc throw error nếu font là bắt buộc
@@ -98,23 +99,28 @@ const capturePage = async (url: string, fullPage: boolean, quality: number, type
     
     // QUAN TRỌNG: Load emoji fonts bằng Data URI
     if (currentFontDataUrl) {
-      await page.evaluateOnNewDocument((fontUrl: string) => {
-        const style = document.createElement('style');
-        style.textContent = `
-          @font-face {
-            font-family: 'NotoColorEmoji';
-            src: url('${fontUrl}') format('truetype');
-            font-display: swap; /* Hoặc block nếu muốn đợi font load xong hẳn */
-          }
+      // await page.evaluateOnNewDocument((fontUrl: string) => {
+      //   const style = document.createElement('style');
+      //   style.textContent = `
+      //     @font-face {
+      //       font-family: 'NotoColorEmoji';
+      //       src: url('${fontUrl}') format('truetype');
+      //       font-display: swap; /* Hoặc block nếu muốn đợi font load xong hẳn */
+      //     }
           
-          /* Áp dụng font cho tất cả các element, hoặc cụ thể hơn nếu muốn */
-          * {
-            /* Thêm các font fallback phổ biến và system-ui */
-            font-family: "NotoColorEmoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Sans JP", system-ui, sans-serif !important;
-          }
-        `;
-        document.head.appendChild(style);
-      }, currentFontDataUrl); // Truyền Data URI vào
+      //     /* Áp dụng font cho tất cả các element, hoặc cụ thể hơn nếu muốn */
+      //     * {
+      //       /* Thêm các font fallback phổ biến và system-ui */
+      //       font-family: "NotoColorEmoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Sans JP", system-ui, sans-serif !important;
+      //     }
+      //   `;
+      //   document.head.appendChild(style);
+      // }, currentFontDataUrl); // Truyền Data URI vào
+
+      console.log('Loading emoji font:', currentFontDataUrl);
+      await chromium.font(currentFontDataUrl);
+    } else {
+      console.log('No emoji font data URL provided');
     }
 
 
