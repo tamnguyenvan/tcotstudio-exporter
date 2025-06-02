@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
-import fs from 'fs/promises'; // Để đọc file font
+// import fs from 'fs/promises'; // Để đọc file font
 import path from 'path';     // Để xử lý đường dẫn file
 
 const DEFAULT_DEVICE_SCALE_FACTOR = 3;
@@ -19,7 +19,7 @@ const getExecutablePath = async () => {
 };
 
 // Biến global để cache font data, tránh đọc file nhiều lần
-let fontDataUrl: string | null = null;
+const fontDataUrl: string | null = null;
 
 const getFontDataUrl = async () => {
   if (fontDataUrl) {
