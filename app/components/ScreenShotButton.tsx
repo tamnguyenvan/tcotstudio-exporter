@@ -16,7 +16,7 @@ const ScreenshotButtonServer: React.FC = () => {
   };
 
   const handleCaptureExternalPage = () => {
-    const externalUrl = prompt("Enter URL to capture:", "https://studio.tcot.vn/export?range=A4:M5&token=1XspSH4u9quhiDUjkxlqJcgmPprp0pCB694tUBSq-EA0&side=front");
+    const externalUrl = prompt("Enter URL to capture:", "https://studio.tcot.vn/export?id=11&side=front");
     if (externalUrl) {
       capturePageViaAPI({
         url: externalUrl,
