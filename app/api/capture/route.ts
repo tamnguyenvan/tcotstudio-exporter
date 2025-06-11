@@ -4,7 +4,7 @@ import chromium from '@sparticuz/chromium';
 // import fs from 'fs/promises'; // Để đọc file font
 import path from 'path';     // Để xử lý đường dẫn file
 
-const DEFAULT_DEVICE_SCALE_FACTOR = 3.8483;
+const DEFAULT_DEVICE_SCALE_FACTOR = 5.136;
 
 const getExecutablePath = async () => {
   if (process.env.NODE_ENV === 'production') {
